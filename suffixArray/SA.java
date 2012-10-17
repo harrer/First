@@ -85,8 +85,8 @@ public class SA{
 		return new int[] {sp,ep};
 	}
 
-	public static String[] suche(String text, double pos1, String pattern,Pointer[] sa, int durchgang){
-		int pos = (int)Math.round(pos1), comp = 0; String sub = "";
+	public static int[] suche(String text, double pos1, String pattern,Pointer[] sa, int durchgang){
+		int pos = (int)pos1, comp = 0; String sub = "";
 		try {
 			sub = text.substring(sa[pos].getPointer(), sa[pos].getPointer()+pattern.length());
 			comp = pattern.compareTo(sub);
@@ -98,28 +98,32 @@ public class SA{
 			else if(pos==sa.length){return suche(text, sa.length-1, pattern, sa, durchgang);}
 		}
 		if(comp<0){
-			return suche(text,pos-sa.length/Math.floor(Math.pow(2, durchgang)),pattern,sa,durchgang+1);
+			return suche(text,pos-Math.floor(sa.length/Math.pow(2, durchgang)),pattern,sa,durchgang+1);
 		}
 		else if(comp>0){
-			return suche(text,pos+sa.length/Math.ceil(Math.pow(2, durchgang)),pattern,sa,durchgang+1);
+			return suche(text,pos+Math.floor(sa.length/Math.pow(2, durchgang)),pattern,sa,durchgang+1);
 		}
 		else{
+			System.out.println(text.substring(sa[pos-1].getPointer(), sa[pos-1].getPointer()+pattern.length()));
+			while(pos>0&&(text.substring(sa[pos-1].getPointer(), sa[pos-1].getPointer()+pattern.length())).equals(pattern)){
+				pos--;
+			}
 			int end = pos+1;
 			while(end<sa.length){
 				sub = text.substring(sa[end].getPointer(), sa[end].getPointer()+pattern.length());
 				comp =pattern.compareTo(sub);
-				if(comp!=1){end--;break;}
+				if(comp!=0){end--;break;}
 				System.out.println(sub+" "+comp);
 				end++;
 			}
-			return new String[] {"Von: "+pos+" bis: "+end};
+			return new int[] {pos,end};
 		}
 	}
 	
 	public static void main(String[] args) {
 		long v = System.currentTimeMillis();
 		String text = "diuebcnklimaoqbxiyot\u0000";
-		String pattern = "i";
+		String pattern = "klima";
 		Pointer[] s = suffixes(text);
 		Pointer[] s2 = mergeSort(s);
 		//int[] s3 = suffixArray(s2);
@@ -130,7 +134,6 @@ public class SA{
 			out+= i+" "+text.substring(s2[i].getPointer())+" ("+s2[i].getPointer()+")"+"\n";
 		}
 		System.out.println(out);
-		String[] search = suche(text, text.length()/2, pattern, s2, 2);//SaSearch("d", s3, text);
-		System.out.println(search[0]);//+", "+search[1]);
+		int[] search = suche(text, text.length()/2, pattern, s2, 2);
+		System.out.println("Von: "+search[0]+" bis: "+search[1]);
 	}
-}
